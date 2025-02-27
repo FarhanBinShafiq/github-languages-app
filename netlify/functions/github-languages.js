@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
     }
 
     const username = event.queryStringParameters.username;
-    const token = process.env.GITHUB_TOKEN;
+    const token = process.env.GITHUB_TOKEN;  // Using the token from environment variable
 
     if (!username) {
         return {
@@ -19,9 +19,21 @@ exports.handler = async (event, context) => {
         };
     }
 
+    if (!token) {
+        return {
+            statusCode: 400,
+            headers: {
+                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+            },
+            body: JSON.stringify({ error: 'GitHub token is required' })
+        };
+    }
+
     try {
-        const headers = token ? { Authorization: `token ${token}` } : {};
+        // Include the token in the Authorization header for authenticated requests
+        const headers = { Authorization: `token ${token}` };
         const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`, { headers });
+
         if (!reposResponse.ok) throw new Error(`Failed to fetch repositories: ${reposResponse.statusText}`);
 
         const repos = await reposResponse.json();
