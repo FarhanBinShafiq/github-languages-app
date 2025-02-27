@@ -1,21 +1,34 @@
 let fetch;
 
 exports.handler = async (event, context) => {
+    // Handle preflight OPTIONS request for CORS
+    if (event.httpMethod === "OPTIONS") {
+        return {
+            statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            },
+            body: ""
+        };
+    }
+
     if (!fetch) {
         // Dynamically import node-fetch for ES module compatibility
-        fetch = (await import('node-fetch')).default;
+        fetch = (await import("node-fetch")).default;
     }
 
     const username = event.queryStringParameters.username;
-    const token = process.env.GITHUB_TOKEN;  // Using the token from environment variable
+    const token = process.env.GITHUB_TOKEN; // Using the token from environment variable
 
     if (!username) {
         return {
             statusCode: 400,
             headers: {
-                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+                "Access-Control-Allow-Origin": "*"
             },
-            body: JSON.stringify({ error: 'Username is required' })
+            body: JSON.stringify({ error: "Username is required" })
         };
     }
 
@@ -23,9 +36,9 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 400,
             headers: {
-                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+                "Access-Control-Allow-Origin": "*"
             },
-            body: JSON.stringify({ error: 'GitHub token is required' })
+            body: JSON.stringify({ error: "GitHub token is required" })
         };
     }
 
@@ -56,14 +69,18 @@ exports.handler = async (event, context) => {
 
         const totalBytes = Object.values(languageData).reduce((acc, val) => acc + val, 0);
         const sortedLanguages = Object.entries(languageData)
-            .map(([lang, bytes]) => ({ name: lang, percentage: ((bytes / totalBytes) * 100).toFixed(2) }))
+            .map(([lang, bytes]) => ({
+                name: lang,
+                percentage: ((bytes / totalBytes) * 100).toFixed(2)
+            }))
             .sort((a, b) => b.percentage - a.percentage)
             .slice(0, 6);
 
         return {
             statusCode: 200,
             headers: {
-                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(sortedLanguages)
         };
@@ -72,7 +89,7 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 500,
             headers: {
-                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+                "Access-Control-Allow-Origin": "*"
             },
             body: JSON.stringify({ error: error.message })
         };

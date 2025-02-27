@@ -1,105 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Languages</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0d1117;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            width: 80%;
-            max-width: 500px;
-            margin: auto;
-            background: #161b22;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-        }
-        h2 {
-            color: #58a6ff;
-        }
-        .progress-container {
-            width: 100%;
-            background-color: #30363d;
-            border-radius: 10px;
-            overflow: hidden;
-            height: 20px;
-            display: flex;
-        }
-        .progress-bar {
-            height: 100%;
-        }
-        .legend {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        .legend div {
-            margin: 5px 10px;
-            display: flex;
-            align-items: center;
-        }
-        .legend span {
-            width: 12px;
-            height: 12px;
-            display: inline-block;
-            margin-right: 5px;
-            border-radius: 3px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    /* Main flex container to hold the two panels */
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .container {
+      background: #161b22;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 15px;
+    }
+    /* Language section styles */
+    .progress-container {
+      width: 100%;
+      background-color: #30363d;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      display: flex;
+    }
+    .progress-bar {
+      height: 100%;
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .legend div {
+      margin: 5px 10px;
+      display: flex;
+      align-items: center;
+    }
+    .legend span {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      margin-right: 5px;
+      border-radius: 3px;
+    }
+    /* Stats section styles */
+    .stats-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+    }
+    .stat-item img {
+      width: 20px;
+      height: 20px;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="main-container">
+    <!-- Languages Panel -->
+    <div class="container">
+      <h2>My Most Used Languages</h2>
+      <div class="progress-container" id="progress-bar"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <!-- Stats Panel -->
+    <div class="container">
+      <h2>GitHub Stats for User</h2>
+      <div class="stats-container" id="stats"></div>
+    </div>
+  </div>
 
-<div class="container">
-    <h2>My Most Used Languages</h2>
-    <div class="progress-container" id="progress-bar"></div>
-    <div class="legend" id="legend"></div>
-</div>
-
-<script>
+  <script>
     const username = "FarhanBinShafiq"; // Replace with your GitHub username
+
+    // ---------- Languages Section ----------
     const progressBar = document.getElementById("progress-bar");
     const legend = document.getElementById("legend");
 
     async function fetchLanguages() {
-        try {
-            const response = await fetch(`https://dynamic-clafoutis-3381e6.netlify.app/.netlify/functions/github-languages?username=${username}`);
-            if (!response.ok) throw new Error(`Failed to fetch languages: ${response.statusText}`);
-
-            const languages = await response.json();
-            displayLanguages(languages);
-        } catch (error) {
-            console.error("Error fetching language data:", error);
-        }
+      try {
+        const response = await fetch(`https://dynamic-clafoutis-3381e6.netlify.app/.netlify/functions/github-languages?username=${username}`);
+        if (!response.ok) throw new Error(`Failed to fetch languages: ${response.statusText}`);
+        const languages = await response.json();
+        displayLanguages(languages);
+      } catch (error) {
+        console.error("Error fetching language data:", error);
+      }
     }
 
     function displayLanguages(languages) {
-        const colors = ["#8e44ad", "#e67e22", "#e74c3c", "#f1c40f", "#2980b9", "#34495e"];
-        progressBar.innerHTML = "";
-        legend.innerHTML = "";
+      const colors = ["#8e44ad", "#e67e22", "#e74c3c", "#f1c40f", "#2980b9", "#34495e"];
+      progressBar.innerHTML = "";
+      legend.innerHTML = "";
 
-        languages.forEach((lang, index) => {
-            const div = document.createElement("div");
-            div.classList.add("progress-bar");
-            div.style.width = lang.percentage + "%";
-            div.style.backgroundColor = colors[index % colors.length];
-            progressBar.appendChild(div);
+      languages.forEach((lang, index) => {
+        // Create and append progress bar segment
+        const bar = document.createElement("div");
+        bar.classList.add("progress-bar");
+        bar.style.width = lang.percentage + "%";
+        bar.style.backgroundColor = colors[index % colors.length];
+        progressBar.appendChild(bar);
 
-            const legendItem = document.createElement("div");
-            legendItem.innerHTML = `<span style="background-color:${colors[index % colors.length]}"></span> ${lang.name} ${lang.percentage}%`;
-            legend.appendChild(legendItem);
-        });
+        // Create and append legend item
+        const legendItem = document.createElement("div");
+        legendItem.innerHTML = `<span style="background-color:${colors[index % colors.length]}"></span> ${lang.name} ${lang.percentage}%`;
+        legend.appendChild(legendItem);
+      });
     }
 
     fetchLanguages();
-</script>
 
+    // ---------- Stats Section ----------
+    const statsContainer = document.getElementById("stats");
+
+    async function fetchGitHubStats() {
+      try {
+        // Fetch repositories (public data)
+        const reposResponse = await fetch(`https://api.github.com/users/${username}/repos`);
+        if (!reposResponse.ok) throw new Error("Failed to fetch repositories");
+        const repos = await reposResponse.json();
+
+        let totalStars = 0, totalCommits = 0, totalPRs = 0, totalIssues = 0;
+
+        for (const repo of repos) {
+          totalStars += repo.stargazers_count;
+
+          // Fetch commits (public data; note that this might be rate limited)
+          const commitsResponse = await fetch(repo.commits_url.replace("{/sha}", ""));
+          if (commitsResponse.ok) {
+            const commits = await commitsResponse.json();
+            totalCommits += commits.length;
+          }
+
+          // Fetch pull requests
+          const prsResponse = await fetch(repo.pulls_url.replace("{/number}", ""));
+          if (prsResponse.ok) {
+            const prs = await prsResponse.json();
+            totalPRs += prs.length;
+          }
+
+          // Fetch issues
+          const issuesResponse = await fetch(repo.issues_url.replace("{/number}", ""));
+          if (issuesResponse.ok) {
+            const issues = await issuesResponse.json();
+            totalIssues += issues.length;
+          }
+        }
+
+        displayStats({ totalStars, totalCommits, totalPRs, totalIssues });
+      } catch (error) {
+        console.error("Error fetching GitHub stats:", error);
+      }
+    }
+
+    function displayStats({ totalStars, totalCommits, totalPRs, totalIssues }) {
+      statsContainer.innerHTML = `
+        <div class="stat-item">
+          <img src="https://img.icons8.com/fluency/48/star.png" alt="Stars" />
+          <span>Total Stars Earned: ${totalStars}</span>
+        </div>
+        <div class="stat-item">
+          <img src="https://img.icons8.com/fluency/48/source-code.png" alt="Commits" />
+          <span>Total Commits: ${totalCommits}</span>
+        </div>
+        <div class="stat-item">
+          <img src="https://img.icons8.com/fluency/48/pull-request.png" alt="Pull Requests" />
+          <span>Total PRs: ${totalPRs}</span>
+        </div>
+        <div class="stat-item">
+          <img src="https://img.icons8.com/fluency/48/error.png" alt="Issues" />
+          <span>Total Issues: ${totalIssues}</span>
+        </div>
+      `;
+    }
+
+    fetchGitHubStats();
+  </script>
 </body>
 </html>
