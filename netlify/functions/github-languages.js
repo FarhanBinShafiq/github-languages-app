@@ -7,6 +7,9 @@ exports.handler = async (event, context) => {
     if (!username) {
         return {
             statusCode: 400,
+            headers: {
+                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+            },
             body: JSON.stringify({ error: 'Username is required' })
         };
     }
@@ -42,12 +45,18 @@ exports.handler = async (event, context) => {
 
         return {
             statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+            },
             body: JSON.stringify(sortedLanguages)
         };
 
     } catch (error) {
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*'  // Allow all domains (or specify your domain here)
+            },
             body: JSON.stringify({ error: error.message })
         };
     }
