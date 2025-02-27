@@ -1,6 +1,11 @@
-const fetch = require('node-fetch');
+let fetch;
 
 exports.handler = async (event, context) => {
+    if (!fetch) {
+        // Dynamically import node-fetch for ES module compatibility
+        fetch = (await import('node-fetch')).default;
+    }
+
     const username = event.queryStringParameters.username;
     const token = process.env.GITHUB_TOKEN;
 
