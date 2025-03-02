@@ -12,7 +12,6 @@
       margin: 0;
       padding: 20px;
     }
-    /* Main flex container to hold the two panels */
     .main-container {
       display: flex;
       flex-wrap: wrap;
@@ -31,7 +30,6 @@
       color: #58a6ff;
       margin-bottom: 15px;
     }
-    /* Language section styles */
     .progress-container {
       width: 100%;
       background-color: #30363d;
@@ -61,7 +59,6 @@
       margin-right: 5px;
       border-radius: 3px;
     }
-    /* Stats section styles */
     .stats-container {
       display: flex;
       flex-direction: column;
@@ -79,7 +76,6 @@
       width: 20px;
       height: 20px;
     }
-    /* Responsive adjustments */
     @media (max-width: 768px) {
       .container {
         max-width: 100%;
@@ -89,13 +85,11 @@
 </head>
 <body>
   <div class="main-container">
-    <!-- Languages Panel -->
     <div class="container">
       <h2>My Most Used Languages</h2>
       <div class="progress-container" id="progress-bar"></div>
       <div class="legend" id="legend"></div>
     </div>
-    <!-- Stats Panel -->
     <div class="container">
       <h2>GitHub Stats for User</h2>
       <div class="stats-container" id="stats"></div>
@@ -103,20 +97,22 @@
   </div>
 
   <script>
-    const username = "FarhanBinShafiq"; // Replace with your GitHub username
+    const username = "FarhanBinShafiq";
 
-    // ---------- Languages Section ----------
     const progressBar = document.getElementById("progress-bar");
     const legend = document.getElementById("legend");
+    const statsContainer = document.getElementById("stats");
 
-    async function fetchLanguages() {
+    async function fetchGitHubData() {
       try {
         const response = await fetch(`https://dynamic-clafoutis-3381e6.netlify.app/.netlify/functions/github-languages?username=${username}`);
-        if (!response.ok) throw new Error(`Failed to fetch languages: ${response.statusText}`);
-        const languages = await response.json();
+        if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+        const { languages, stats } = await response.json();
+
         displayLanguages(languages);
+        displayStats(stats);
       } catch (error) {
-        console.error("Error fetching language data:", error);
+        console.error("Error fetching GitHub data:", error);
       }
     }
 
@@ -126,63 +122,16 @@
       legend.innerHTML = "";
 
       languages.forEach((lang, index) => {
-        // Create and append progress bar segment
         const bar = document.createElement("div");
         bar.classList.add("progress-bar");
         bar.style.width = lang.percentage + "%";
         bar.style.backgroundColor = colors[index % colors.length];
         progressBar.appendChild(bar);
 
-        // Create and append legend item
         const legendItem = document.createElement("div");
         legendItem.innerHTML = `<span style="background-color:${colors[index % colors.length]}"></span> ${lang.name} ${lang.percentage}%`;
         legend.appendChild(legendItem);
       });
-    }
-
-    fetchLanguages();
-
-    // ---------- Stats Section ----------
-    const statsContainer = document.getElementById("stats");
-
-    async function fetchGitHubStats() {
-      try {
-        // Fetch repositories (public data)
-        const reposResponse = await fetch(`https://api.github.com/users/${username}/repos`);
-        if (!reposResponse.ok) throw new Error("Failed to fetch repositories");
-        const repos = await reposResponse.json();
-
-        let totalStars = 0, totalCommits = 0, totalPRs = 0, totalIssues = 0;
-
-        for (const repo of repos) {
-          totalStars += repo.stargazers_count;
-
-          // Fetch commits (public data; note that this might be rate limited)
-          const commitsResponse = await fetch(repo.commits_url.replace("{/sha}", ""));
-          if (commitsResponse.ok) {
-            const commits = await commitsResponse.json();
-            totalCommits += commits.length;
-          }
-
-          // Fetch pull requests
-          const prsResponse = await fetch(repo.pulls_url.replace("{/number}", ""));
-          if (prsResponse.ok) {
-            const prs = await prsResponse.json();
-            totalPRs += prs.length;
-          }
-
-          // Fetch issues
-          const issuesResponse = await fetch(repo.issues_url.replace("{/number}", ""));
-          if (issuesResponse.ok) {
-            const issues = await issuesResponse.json();
-            totalIssues += issues.length;
-          }
-        }
-
-        displayStats({ totalStars, totalCommits, totalPRs, totalIssues });
-      } catch (error) {
-        console.error("Error fetching GitHub stats:", error);
-      }
     }
 
     function displayStats({ totalStars, totalCommits, totalPRs, totalIssues }) {
@@ -206,7 +155,7 @@
       `;
     }
 
-    fetchGitHubStats();
+    fetchGitHubData();
   </script>
 </body>
 </html>
